@@ -135,17 +135,44 @@ def iterate_pagerank(corpus, damping_factor):
     their estimated PageRank value (a value between 0 and 1). All
     PageRank values should sum to 1.
     """
-   
-        
-        
-    pageRank = {}    
-        
-        
-
-        
-        
     
-    return pageRank
+    tol = 1e-6
+    error = 1
+    
+    def get_true_indices(lst):
+        ### Function to return the indices where condition is true ###
+        indices = []
+        for i, x in enumerate(lst):
+            if x:
+                indices.append(i)
+        return indices
+
+    
+    # Get a list of booleans if a page links to page i
+    inds = []
+    links_to = {key: set() for key in corpus.keys()}  # A dictionary of sets of links
+    for i, page in enumerate(corpus.keys()):
+        lst = [list(corpus.keys())[i] in val for val in list(corpus.values())]
+        inds.append(get_true_indices(lst))
+        for ind in inds[-1]:
+            links_to[page].add(list(corpus.keys())[ind])
+    
+    # Initialize the page rank with equal probabilities
+    pageRank = {}
+    for page in corpus.keys():
+        pageRank[page] = (1 - damping_factor) / len(corpus)
+
+    while error > tol:
+        previous = pageRank.copy()  # Keep track of previous pageRank
+        for page in corpus.keys():
+            for i in links_to[page]:
+                pageRank[page] += damping_factor * pageRank[i] / len(corpus[i])
+        
+        # Compare new pageRank with previous
+        error = max_difference(normalize_pageRank(pageRank), 
+                               normalize_pageRank(previous))
+        
+    return normalize_pageRank(pageRank)
 
 def normalize_pageRank(pageRank):
     return {key: pageRank[key]/sum(list(pageRank.values())) for key in pageRank.keys()}
