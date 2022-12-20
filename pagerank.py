@@ -9,10 +9,10 @@ SAMPLES = 10000
 
 def main():
     import numpy as np
-    # if len(sys.argv) != 2:
-    #     sys.exit("Usage: python pagerank.py corpus")
-    # corpus = crawl(sys.argv[1])
-    corpus = crawl('corpus0')
+    if len(sys.argv) != 2:
+        sys.exit("Usage: python pagerank.py corpus")
+    corpus = crawl(sys.argv[1])
+    # corpus = crawl('corpus2')
     ranks = sample_pagerank(corpus, DAMPING, SAMPLES)
     print(f"PageRank Results from Sampling (n = {SAMPLES})")
     for page in sorted(ranks):
@@ -160,11 +160,12 @@ def iterate_pagerank(corpus, damping_factor):
     # Initialize the page rank with equal probabilities
     pageRank = {}
     for page in corpus.keys():
-        pageRank[page] = (1 - damping_factor) / len(corpus)
+        pageRank[page] = 1 / len(corpus)
 
     while error > tol:
         previous = pageRank.copy()  # Keep track of previous pageRank
         for page in corpus.keys():
+            pageRank[page] = (1 - damping_factor) / len(corpus)
             for i in links_to[page]:
                 pageRank[page] += damping_factor * pageRank[i] / len(corpus[i])
         
